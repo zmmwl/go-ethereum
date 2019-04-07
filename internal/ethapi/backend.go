@@ -87,7 +87,7 @@ func GetAPIs(apiBackend Backend) []rpc.API {
 		}, {
 			Namespace: "eth",
 			Version:   "1.0",
-			Service:   NewPublicTransactionPoolAPI(apiBackend, nonceLock),
+			Service:   NewPublicTransactionPoolAPI(apiBackend, nonceLock), //zmm: eth_sendTransaction api
 			Public:    true,
 		}, {
 			Namespace: "txpool",

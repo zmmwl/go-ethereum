@@ -262,7 +262,7 @@ func geth(ctx *cli.Context) error {
 		return fmt.Errorf("invalid command: %q", args[0])
 	}
 	node := makeFullNode(ctx)
-	startNode(ctx, node)
+	startNode(ctx, node)		//zmm: geth->startNodde()
 	node.Wait()
 	return nil
 }

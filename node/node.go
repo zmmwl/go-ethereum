@@ -135,7 +135,7 @@ func (n *Node) Register(constructor ServiceConstructor) error {
 }
 
 // Start create a live P2P node and starts running it.
-func (n *Node) Start() error {
+func (n *Node) Start() error { //zmm: start node
 	n.lock.Lock()
 	defer n.lock.Unlock()
 
@@ -167,7 +167,7 @@ func (n *Node) Start() error {
 
 	// Otherwise copy and specialize the P2P configuration
 	services := make(map[reflect.Type]Service)
-	for _, constructor := range n.serviceFuncs {
+	for _, constructor := range n.serviceFuncs { //zmm: see flags.go RegisterEthService method
 		// Create a new context for the particular service
 		ctx := &ServiceContext{
 			config:         n.config,
@@ -193,7 +193,7 @@ func (n *Node) Start() error {
 	for _, service := range services {
 		running.Protocols = append(running.Protocols, service.Protocols()...)
 	}
-	if err := running.Start(); err != nil {
+	if err := running.Start(); err != nil { //zmm: start p2p server
 		return convertFileLockError(err)
 	}
 	// Start each of the services
@@ -212,7 +212,7 @@ func (n *Node) Start() error {
 		started = append(started, kind)
 	}
 	// Lastly start the configured RPC interfaces
-	if err := n.startRPC(services); err != nil {
+	if err := n.startRPC(services); err != nil { //zmm: node.startRPC(...)
 		for _, service := range services {
 			service.Stop()
 		}
@@ -249,7 +249,7 @@ func (n *Node) openDataDir() error {
 // startRPC is a helper method to start all the various RPC endpoint during node
 // startup. It's not meant to be called at any time afterwards as it makes certain
 // assumptions about the state of the node.
-func (n *Node) startRPC(services map[reflect.Type]Service) error {
+func (n *Node) startRPC(services map[reflect.Type]Service) error { //zmm:
 	// Gather all the possible APIs to surface
 	apis := n.apis()
 	for _, service := range services {

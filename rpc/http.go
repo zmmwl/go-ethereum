@@ -222,7 +222,7 @@ func NewHTTPServer(cors []string, vhosts []string, timeouts HTTPTimeouts, srv *S
 }
 
 // ServeHTTP serves JSON-RPC requests over HTTP.
-func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) { //zmm: rpc http hander HTTP request
 	// Permit dumb empty requests for remote health-checks (AWS)
 	if r.Method == http.MethodGet && r.ContentLength == 0 && r.URL.RawQuery == "" {
 		return

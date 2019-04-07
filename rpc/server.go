@@ -306,7 +306,7 @@ func (s *Server) handle(ctx context.Context, codec ServerCodec, req *serverReque
 	}
 
 	// execute RPC method and return result
-	reply := req.callb.method.Func.Call(arguments)
+	reply := req.callb.method.Func.Call(arguments) //zmm: request callback
 	if len(reply) == 0 {
 		return codec.CreateResponse(req.id, nil), nil
 	}

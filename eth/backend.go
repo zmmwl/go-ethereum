@@ -180,7 +180,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	eth.miner = miner.New(eth, eth.chainConfig, eth.EventMux(), eth.engine, config.MinerRecommit, config.MinerGasFloor, config.MinerGasCeil, eth.isLocalBlock)
 	eth.miner.SetExtra(makeExtraData(config.MinerExtraData))
 
-	eth.APIBackend = &EthAPIBackend{eth, nil}
+	eth.APIBackend = &EthAPIBackend{eth, nil} //zmm: Ethereum set APIBackend
 	gpoParams := config.GPO
 	if gpoParams.Default == nil {
 		gpoParams.Default = config.MinerGasPrice
@@ -253,13 +253,13 @@ func CreateConsensusEngine(ctx *node.ServiceContext, chainConfig *params.ChainCo
 // APIs return the collection of RPC services the ethereum package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (s *Ethereum) APIs() []rpc.API {
-	apis := ethapi.GetAPIs(s.APIBackend)
+	apis := ethapi.GetAPIs(s.APIBackend)		//zmm:
 
 	// Append any APIs exposed explicitly by the consensus engine
 	apis = append(apis, s.engine.APIs(s.BlockChain())...)
 
 	// Append all the local APIs and return
-	return append(apis, []rpc.API{
+	return append(apis, []rpc.API{ //zmm: APIs
 		{
 			Namespace: "eth",
 			Version:   "1.0",
@@ -482,12 +482,12 @@ func (s *Ethereum) Protocols() []p2p.Protocol {
 
 // Start implements node.Service, starting all internal goroutines needed by the
 // Ethereum protocol implementation.
-func (s *Ethereum) Start(srvr *p2p.Server) error {
+func (s *Ethereum) Start(srvr *p2p.Server) error {//zmm: start Ethereum service
 	// Start the bloom bits servicing goroutines
 	s.startBloomHandlers(params.BloomBitsBlocks)
 
 	// Start the RPC service
-	s.netRPCService = ethapi.NewPublicNetAPI(srvr, s.NetVersion())
+	s.netRPCService = ethapi.NewPublicNetAPI(srvr, s.NetVersion()) //zmm: ???
 
 	// Figure out a max peers count based on the server limits
 	maxPeers := srvr.MaxPeers
@@ -498,7 +498,7 @@ func (s *Ethereum) Start(srvr *p2p.Server) error {
 		maxPeers -= s.config.LightPeers
 	}
 	// Start the networking layer and the light server if requested
-	s.protocolManager.Start(maxPeers)
+	s.protocolManager.Start(maxPeers) //zmm:
 	if s.lesServer != nil {
 		s.lesServer.Start(srvr)
 	}
