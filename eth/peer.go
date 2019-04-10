@@ -206,7 +206,7 @@ func (p *peer) SendTransactions(txs types.Transactions) error {
 // peer. If the peer's broadcast queue is full, the event is silently dropped.
 func (p *peer) AsyncSendTransactions(txs []*types.Transaction) {
 	select {
-	case p.queuedTxs <- txs:
+	case p.queuedTxs <- txs: //zmm: add txs to peer send queue
 		for _, tx := range txs {
 			p.knownTxs.Add(tx.Hash())
 		}

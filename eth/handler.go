@@ -765,7 +765,7 @@ func (pm *ProtocolManager) txBroadcastLoop() {
 	for {
 		select {
 		case event := <-pm.txsCh:
-			pm.BroadcastTxs(event.Txs)
+			pm.BroadcastTxs(event.Txs) //zmm:
 
 		// Err() channel will be closed when unsubscribing.
 		case <-pm.txsSub.Err():

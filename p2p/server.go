@@ -408,7 +408,7 @@ func (s *sharedUDPConn) Close() error {
 
 // Start starts running the server.
 // Servers can not be re-used after stopping.
-func (srv *Server) Start() (err error) {
+func (srv *Server) Start() (err error) { //p2p server start
 	srv.lock.Lock()
 	defer srv.lock.Unlock()
 	if srv.running {
@@ -452,7 +452,7 @@ func (srv *Server) Start() (err error) {
 			return err
 		}
 	}
-	if err := srv.setupDiscovery(); err != nil {
+	if err := srv.setupDiscovery(); err != nil { //zmm: setupDiscovery
 		return err
 	}
 
@@ -659,7 +659,7 @@ running:
 		case <-srv.quit:
 			// The server was stopped. Run the cleanup logic.
 			break running
-		case n := <-srv.addstatic:
+		case n := <-srv.addstatic: //zmm: AddPeer
 			// This channel is used by AddPeer to add to the
 			// ephemeral static peer list. Add it to the dialer,
 			// it will keep the node connected.
@@ -674,7 +674,7 @@ running:
 			if p, ok := peers[n.ID()]; ok {
 				p.Disconnect(DiscRequested)
 			}
-		case n := <-srv.addtrusted:
+		case n := <-srv.addtrusted: //zmm: AddTrustedPeer
 			// This channel is used by AddTrustedPeer to add an enode
 			// to the trusted node set.
 			srv.log.Trace("Adding trusted node", "node", n)
