@@ -195,7 +195,7 @@ func (p *peer) MarkTransaction(hash common.Hash) {
 
 // SendTransactions sends transactions to the peer and includes the hashes
 // in its transaction hash set for future reference.
-func (p *peer) SendTransactions(txs types.Transactions) error {
+func (p *peer) SendTransactions(txs types.Transactions) error { //zmm: 向peer发送transaction
 	for _, tx := range txs {
 		p.knownTxs.Add(tx.Hash())
 	}

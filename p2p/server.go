@@ -880,7 +880,7 @@ func (srv *Server) listenLoop() {
 // SetupConn runs the handshakes and attempts to add the connection
 // as a peer. It returns when the connection has been added as a peer
 // or the handshakes have failed.
-func (srv *Server) SetupConn(fd net.Conn, flags connFlag, dialDest *enode.Node) error {
+func (srv *Server) SetupConn(fd net.Conn, flags connFlag, dialDest *enode.Node) error { //zmm: peer创建的唯一入口，有两种渠道调用这个方法，一个是上面的listenLoop()方法，从30303端口被动接受连接，另外一种是dialstate.newTasks()方法，主动发起连接。
 	c := &conn{fd: fd, transport: srv.newTransport(fd), flags: flags, cont: make(chan error)}
 	err := srv.setupConn(c, flags, dialDest)
 	if err != nil {
@@ -917,9 +917,9 @@ func (srv *Server) setupConn(c *conn, flags connFlag, dialDest *enode.Node) erro
 		if dialPubkey.X.Cmp(remotePubkey.X) != 0 || dialPubkey.Y.Cmp(remotePubkey.Y) != 0 {
 			return DiscUnexpectedIdentity
 		}
-		c.node = dialDest
+		c.node = dialDest  //zmm: 传入了dialDest node, 则为主动发起连接
 	} else {
-		c.node = nodeFromConn(remotePubkey, c.fd)
+		c.node = nodeFromConn(remotePubkey, c.fd) //zmm: 没有传入dialDest node, 则为被动发起连接，需要从conn进行握手构造node实例
 	}
 	if conn, ok := c.fd.(*meteredConn); ok {
 		conn.handshakeDone(c.node.ID())
@@ -941,7 +941,7 @@ func (srv *Server) setupConn(c *conn, flags connFlag, dialDest *enode.Node) erro
 		return DiscUnexpectedIdentity
 	}
 	c.caps, c.name = phs.Caps, phs.Name
-	err = srv.checkpoint(c, srv.addpeer)
+	err = srv.checkpoint(c, srv.addpeer) //zmm: 将conn放入addpeer通道中等待创建peer
 	if err != nil {
 		clog.Trace("Rejected peer", "err", err)
 		return err

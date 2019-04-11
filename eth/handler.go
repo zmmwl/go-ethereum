@@ -683,7 +683,7 @@ func (pm *ProtocolManager) handleMsg(p *peer) error {
 			}
 			p.MarkTransaction(tx.Hash())
 		}
-		pm.txpool.AddRemotes(txs)
+		pm.txpool.AddRemotes(txs) //zmm: 接收从peer发来的transaction
 
 	default:
 		return errResp(ErrInvalidMsgCode, "%v", msg.Code)

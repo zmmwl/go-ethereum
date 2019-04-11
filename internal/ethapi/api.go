@@ -1268,7 +1268,7 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 
 // SendTransaction creates a transaction for the given argument, sign it and submit it to the
 // transaction pool.
-func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {
+func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {//zmm: 最终和SendRawTransaction一样都call submitTransaction方法，不同之处在于需要对交易签名
 
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
