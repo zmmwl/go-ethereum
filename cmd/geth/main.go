@@ -261,6 +261,7 @@ func geth(ctx *cli.Context) error {
 	if args := ctx.Args(); len(args) > 0 {
 		return fmt.Errorf("invalid command: %q", args[0])
 	}
+	fmt.Println("zmm: ", "node starting")
 	node := makeFullNode(ctx)
 	startNode(ctx, node)		//zmm: geth->startNodde()
 	node.Wait()
