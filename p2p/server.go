@@ -636,7 +636,7 @@ func (srv *Server) run(dialstate dialer) {
 		for ; len(runningTasks) < maxActiveDialTasks && i < len(ts); i++ {
 			t := ts[i]
 			srv.log.Trace("New dial task", "task", t)
-			go func() { t.Do(srv); taskdone <- t }()
+			go func() { t.Do(srv); taskdone <- t }() //zmm: n types of task
 			runningTasks = append(runningTasks, t)
 		}
 		return ts[i:]
