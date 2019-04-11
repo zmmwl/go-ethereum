@@ -448,7 +448,7 @@ func (srv *Server) Start() (err error) { //p2p server start
 		return err
 	}
 	if srv.ListenAddr != "" {
-		if err := srv.setupListening(); err != nil {
+		if err := srv.setupListening(); err != nil { //zmm: setupListening
 			return err
 		}
 	}
