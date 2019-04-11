@@ -129,7 +129,7 @@ func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition 
 // indicates a core error meaning that the message would always fail for that particular
 // state and would never be accepted within a block.
 func ApplyMessage(evm *vm.EVM, msg Message, gp *GasPool) ([]byte, uint64, bool, error) {
-	return NewStateTransition(evm, msg, gp).TransitionDb()
+	return NewStateTransition(evm, msg, gp).TransitionDb() //zmm: transaction flow seq-15
 }
 
 // to returns the recipient of the message.
@@ -210,7 +210,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 	} else {
 		// Increment the nonce for the next transaction
 		st.state.SetNonce(msg.From(), st.state.GetNonce(sender.Address())+1)
-		ret, st.gas, vmerr = evm.Call(sender, st.to(), st.data, st.gas, st.value)
+		ret, st.gas, vmerr = evm.Call(sender, st.to(), st.data, st.gas, st.value) //zmm: transaction flow seq-16
 	}
 	if vmerr != nil {
 		log.Debug("VM returned with error", "err", vmerr)

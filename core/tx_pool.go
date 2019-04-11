@@ -452,8 +452,8 @@ func (pool *TxPool) Stop() {
 
 // SubscribeNewTxsEvent registers a subscription of NewTxsEvent and
 // starts sending event to the given channel.
-func (pool *TxPool) SubscribeNewTxsEvent(ch chan<- NewTxsEvent) event.Subscription {
-	return pool.scope.Track(pool.txFeed.Subscribe(ch))
+func (pool *TxPool) SubscribeNewTxsEvent(ch chan<- NewTxsEvent) event.Subscription { //zmm: how to ?
+	return pool.scope.Track(pool.txFeed.Subscribe(ch))  //zmm: transaction flow seq-5
 }
 
 // GasPrice returns the current gas price enforced by the transaction pool.
@@ -667,7 +667,7 @@ func (pool *TxPool) add(tx *types.Transaction, local bool) (bool, error) {
 		log.Trace("Pooled new executable transaction", "hash", hash, "from", from, "to", tx.To())
 
 		// We've directly injected a replacement transaction, notify subsystems
-		go pool.txFeed.Send(NewTxsEvent{types.Transactions{tx}})
+		go pool.txFeed.Send(NewTxsEvent{types.Transactions{tx}}) //zmm: TxPool.Send() //zmm: transaction flow seq-3
 
 		return old != nil, nil
 	}
@@ -772,7 +772,7 @@ func (pool *TxPool) promoteTx(addr common.Address, hash common.Hash, tx *types.T
 // the sender as a local one in the mean time, ensuring it goes around the local
 // pricing constraints.
 func (pool *TxPool) AddLocal(tx *types.Transaction) error {
-	return pool.addTx(tx, !pool.config.NoLocals)
+	return pool.addTx(tx, !pool.config.NoLocals)  //zmm: transaction flow seq-1
 }
 
 // AddRemote enqueues a single transaction into the pool if it is valid. If the
@@ -802,7 +802,7 @@ func (pool *TxPool) addTx(tx *types.Transaction, local bool) error {
 	defer pool.mu.Unlock()
 
 	// Try to inject the transaction and update any state
-	replace, err := pool.add(tx, local)
+	replace, err := pool.add(tx, local) //zmm: transaction flow seq-2
 	if err != nil {
 		return err
 	}
@@ -977,7 +977,7 @@ func (pool *TxPool) promoteExecutables(accounts []common.Address) {
 	}
 	// Notify subsystem for new promoted transactions.
 	if len(promoted) > 0 {
-		go pool.txFeed.Send(NewTxsEvent{promoted})
+		go pool.txFeed.Send(NewTxsEvent{promoted})  //zmm: TxPool.Send()
 	}
 	// If the pending limit is overflown, start equalizing allowances
 	pending := uint64(0)
