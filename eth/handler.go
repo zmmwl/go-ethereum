@@ -142,7 +142,7 @@ func NewProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, ne
 				case manager.newPeerCh <- peer:
 					manager.wg.Add(1)
 					defer manager.wg.Done()
-					return manager.handle(peer)
+					return manager.handle(peer) //zmm: handle msg
 				case <-manager.quitSync:
 					return p2p.DiscQuitting
 				}
@@ -309,7 +309,7 @@ func (pm *ProtocolManager) handle(p *peer) error {
 	}
 	// main loop. handle incoming messages.
 	for {
-		if err := pm.handleMsg(p); err != nil {
+		if err := pm.handleMsg(p); err != nil { //zmm: 处理peer消息的main loop
 			p.Log().Debug("Ethereum message handling failed", "err", err)
 			return err
 		}

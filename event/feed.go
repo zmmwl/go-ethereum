@@ -126,7 +126,7 @@ func (f *Feed) remove(sub *feedSub) {
 
 // Send delivers to all subscribed channels simultaneously.
 // It returns the number of subscribers that the value was sent to.
-func (f *Feed) Send(value interface{}) (nsent int) { //zmm:
+func (f *Feed) Send(value interface{}) (nsent int) { //zmm: 接收消息发给所有的subscriber
 	rvalue := reflect.ValueOf(value)
 
 	f.once.Do(f.init)
