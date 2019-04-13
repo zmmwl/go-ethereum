@@ -955,7 +955,7 @@ func (pool *TxPool) promoteExecutables(accounts []common.Address) {
 		// Gather all executable transactions and promote them
 		for _, tx := range list.Ready(pool.pendingState.GetNonce(addr)) {
 			hash := tx.Hash()
-			if pool.promoteTx(addr, hash, tx) {
+			if pool.promoteTx(addr, hash, tx) { //zmm: 先检查nonce的连续性，然后移动queue的tx到pending队列
 				log.Trace("Promoting queued transaction", "hash", hash)
 				promoted = append(promoted, tx)
 			}
@@ -977,7 +977,7 @@ func (pool *TxPool) promoteExecutables(accounts []common.Address) {
 	}
 	// Notify subsystem for new promoted transactions.
 	if len(promoted) > 0 {
-		go pool.txFeed.Send(NewTxsEvent{promoted})  //zmm: TxPool.Send()
+		go pool.txFeed.Send(NewTxsEvent{promoted})  //zmm: 通知系统有新加入pending队列的交易
 	}
 	// If the pending limit is overflown, start equalizing allowances
 	pending := uint64(0)

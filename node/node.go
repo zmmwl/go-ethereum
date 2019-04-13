@@ -179,7 +179,7 @@ func (n *Node) Start() error { //zmm: start node
 			ctx.services[kind] = s
 		}
 		// Construct and save the service
-		service, err := constructor(ctx)
+		service, err := constructor(ctx) //zmm: new Ethereum
 		if err != nil {
 			return err
 		}
@@ -191,7 +191,7 @@ func (n *Node) Start() error { //zmm: start node
 	}
 	// Gather the protocols and start the freshly assembled P2P server
 	for _, service := range services {
-		running.Protocols = append(running.Protocols, service.Protocols()...)
+		running.Protocols = append(running.Protocols, service.Protocols()...) //zmm: todo
 	}
 	if err := running.Start(); err != nil { //zmm: start p2p server
 		return convertFileLockError(err)

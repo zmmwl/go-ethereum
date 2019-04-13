@@ -176,7 +176,7 @@ func makeFullNode(ctx *cli.Context) *node.Node {
 
 	// Add the Ethereum Stats daemon if requested.
 	if cfg.Ethstats.URL != "" {
-		utils.RegisterEthStatsService(stack, cfg.Ethstats.URL)
+		utils.RegisterEthStatsService(stack, cfg.Ethstats.URL) //zmm: todo what is Ethstats service?
 	}
 	return stack
 }

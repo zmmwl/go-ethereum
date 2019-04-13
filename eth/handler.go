@@ -212,12 +212,12 @@ func (pm *ProtocolManager) Start(maxPeers int) {
 	go pm.txBroadcastLoop()
 
 	// broadcast mined blocks
-	pm.minedBlockSub = pm.eventMux.Subscribe(core.NewMinedBlockEvent{})
-	go pm.minedBroadcastLoop()
+	pm.minedBlockSub = pm.eventMux.Subscribe(core.NewMinedBlockEvent{}) //zmm: 订阅成功写块事件
+	go pm.minedBroadcastLoop() //zmm: todo
 
 	// start sync handlers
-	go pm.syncer()
-	go pm.txsyncLoop()
+	go pm.syncer()		//zmm: todo
+	go pm.txsyncLoop()  //zmm: todo
 }
 
 func (pm *ProtocolManager) Stop() {

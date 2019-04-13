@@ -342,17 +342,17 @@ func (w *worker) newWorkLoop(recommit time.Duration) {
 
 	for {
 		select {
-		case <-w.startCh: //zmm: 设置挖矿任务
+		case <-w.startCh: //zmm: 命令行启动一个挖矿任务
 			clearPending(w.chain.CurrentBlock().NumberU64())
 			timestamp = time.Now().Unix()
 			commit(false, commitInterruptNewHead)
 
-		case head := <-w.chainHeadCh: //zmm: 设置挖矿任务???
+		case head := <-w.chainHeadCh: //zmm: todo PostChainEvents的ChainHeadEvent, 为何启动挖矿? 因为有新区块进来了？
 			clearPending(head.Block.NumberU64())
 			timestamp = time.Now().Unix()
 			commit(false, commitInterruptNewHead)
 
-		case <-timer.C: //zmm: 定时挖矿任务
+		case <-timer.C: //zmm: 定时启动挖矿任务
 			// If mining is running resubmit a new work cycle periodically to pull in
 			// higher priced transactions. Disable this overhead for pending blocks.
 			if w.isRunning() && (w.config.Clique == nil || w.config.Clique.Period > 0) {
@@ -449,7 +449,7 @@ func (w *worker) mainLoop() { //zmm: worker mainloop
 				}
 			}
 
-		case ev := <-w.txsCh: //zmm: transaction flow seq-10-2
+		case ev := <-w.txsCh: //zmm: transaction flow seq-10-2  pending队列增加
 			// Apply transactions to the pending state if we're not mining.
 			//
 			// Note all transactions received may not be continuous with transactions
@@ -506,7 +506,7 @@ func (w *worker) taskLoop() {
 	}
 	for {
 		select {
-		case task := <-w.taskCh:
+		case task := <-w.taskCh: //zmm: 挖矿的task
 			if w.newTaskHook != nil {
 				w.newTaskHook(task)
 			}
@@ -526,7 +526,7 @@ func (w *worker) taskLoop() {
 			w.pendingTasks[w.engine.SealHash(task.block.Header())] = task
 			w.pendingMu.Unlock()
 
-			if err := w.engine.Seal(w.chain, task.block, w.resultCh, stopCh); err != nil { //zmm: 调用共识算法
+			if err := w.engine.Seal(w.chain, task.block, w.resultCh, stopCh); err != nil { //zmm: 调用共识算法，挖矿
 				log.Warn("Block sealing failed", "err", err)
 			}
 		case <-w.exitCh:
@@ -541,7 +541,7 @@ func (w *worker) taskLoop() {
 func (w *worker) resultLoop() {
 	for {
 		select {
-		case block := <-w.resultCh:
+		case block := <-w.resultCh: //zmm: todo 需要详细分析挖到区块之后的处理逻辑
 			// Short circuit when receiving empty result.
 			if block == nil {
 				continue
@@ -590,13 +590,13 @@ func (w *worker) resultLoop() {
 
 			var events []interface{}
 			switch stat {
-			case core.CanonStatTy:
+			case core.CanonStatTy: //zmm: 插入了规范的区块链
 				events = append(events, core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
 				events = append(events, core.ChainHeadEvent{Block: block})
 			case core.SideStatTy:
 				events = append(events, core.ChainSideEvent{Block: block})
 			}
-			w.chain.PostChainEvents(events, logs) //zmm:
+			w.chain.PostChainEvents(events, logs) //zmm: ChainHeadEvent会生成挖矿任务，因为旧任务已经插入了规范的区块链就生成一个新任务?
 
 			// Insert the block into the set of pending ones to resultLoop for confirmations
 			w.unconfirmed.Insert(block.NumberU64(), block.Hash())
