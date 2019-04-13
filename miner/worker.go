@@ -407,7 +407,7 @@ func (w *worker) mainLoop() { //zmm: worker mainloop
 
 	for {
 		select {
-		case req := <-w.newWorkCh: //zmm: transaction flow seq-10-1
+		case req := <-w.newWorkCh: //zmm: 接收挖矿任务
 			w.commitNewWork(req.interrupt, req.noempty, req.timestamp)
 
 		case ev := <-w.chainSideCh:
@@ -449,7 +449,7 @@ func (w *worker) mainLoop() { //zmm: worker mainloop
 				}
 			}
 
-		case ev := <-w.txsCh: //zmm: transaction flow seq-10-2  pending队列增加
+		case ev := <-w.txsCh: //zmm: pending tx队列增加
 			// Apply transactions to the pending state if we're not mining.
 			//
 			// Note all transactions received may not be continuous with transactions
@@ -817,7 +817,7 @@ func (w *worker) commitTransactions(txs *types.TransactionsByPriceAndNonce, coin
 }
 
 // commitNewWork generates several new sealing tasks based on the parent block.
-func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) { //zmm: 设置挖矿任务
+func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) { //zmm: 设置挖矿任务 todo 需要仔细阅读
 	w.mu.RLock()
 	defer w.mu.RUnlock()
 
