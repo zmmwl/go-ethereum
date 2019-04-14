@@ -342,7 +342,7 @@ func (db *Database) node(hash common.Hash, cachegen uint16) node {
 		return node.obj(hash, cachegen)
 	}
 	// Content unavailable in memory, attempt to retrieve from disk
-	enc, err := db.diskdb.Get(hash[:])
+	enc, err := db.diskdb.Get(hash[:]) //zmm: todo diskdb is leveldb
 	if err != nil || enc == nil {
 		return nil
 	}

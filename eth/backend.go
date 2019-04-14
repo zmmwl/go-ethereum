@@ -114,7 +114,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		config.MinerGasPrice = new(big.Int).Set(DefaultConfig.MinerGasPrice)
 	}
 	// Assemble the Ethereum object
-	chainDb, err := CreateDB(ctx, config, "chaindata")
+	chainDb, err := CreateDB(ctx, config, "chaindata") //zmm: 初始化DB
 	if err != nil {
 		return nil, err
 	}

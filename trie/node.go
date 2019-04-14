@@ -139,7 +139,7 @@ func decodeNode(hash, buf []byte, cachegen uint16) (node, error) {
 		n, err := decodeShort(hash, elems, cachegen)
 		return n, wrapError(err, "short")
 	case 17:
-		n, err := decodeFull(hash, elems, cachegen)
+		n, err := decodeFull(hash, elems, cachegen) //zmm: fullNode
 		return n, wrapError(err, "full")
 	default:
 		return nil, fmt.Errorf("invalid number of list elements: %v", c)

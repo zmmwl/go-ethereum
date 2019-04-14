@@ -67,7 +67,7 @@ func (n *BlockNonce) UnmarshalText(input []byte) error {
 //go:generate gencodec -type Header -field-override headerMarshaling -out gen_header_json.go
 
 // Header represents a block header in the Ethereum blockchain.
-type Header struct {
+type Header struct { //zmm: block header
 	ParentHash  common.Hash    `json:"parentHash"       gencodec:"required"`
 	UncleHash   common.Hash    `json:"sha3Uncles"       gencodec:"required"`
 	Coinbase    common.Address `json:"miner"            gencodec:"required"`
@@ -117,7 +117,7 @@ func rlpHash(x interface{}) (h common.Hash) {
 
 // Body is a simple (mutable, non-safe) data container for storing and moving
 // a block's data contents (transactions and uncles) together.
-type Body struct {
+type Body struct {  //zmm: block body
 	Transactions []*Transaction
 	Uncles       []*Header
 }

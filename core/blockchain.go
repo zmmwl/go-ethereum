@@ -172,7 +172,7 @@ func NewBlockChain(db ethdb.Database, cacheConfig *CacheConfig, chainConfig *par
 	bc.SetProcessor(NewStateProcessor(chainConfig, bc, engine))
 
 	var err error
-	bc.hc, err = NewHeaderChain(db, chainConfig, engine, bc.getProcInterrupt)
+	bc.hc, err = NewHeaderChain(db, chainConfig, engine, bc.getProcInterrupt) //zmm: todo
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func NewBlockChain(db ethdb.Database, cacheConfig *CacheConfig, chainConfig *par
 	if bc.genesisBlock == nil {
 		return nil, ErrNoGenesis
 	}
-	if err := bc.loadLastState(); err != nil {
+	if err := bc.loadLastState(); err != nil { //zmm: todo
 		return nil, err
 	}
 	// Check the current state of the block hashes and make sure that we do not have any of the bad blocks in our chain
@@ -223,10 +223,10 @@ func (bc *BlockChain) loadLastState() error {
 		return bc.Reset()
 	}
 	// Make sure the state associated with the block is available
-	if _, err := state.New(currentBlock.Root(), bc.stateCache); err != nil {
+	if _, err := state.New(currentBlock.Root(), bc.stateCache); err != nil { //zmm: 先从levelDB中直接查询trie root node， 如果没有则修复
 		// Dangling block without a state associated, init from scratch
 		log.Warn("Head state missing, repairing chain", "number", currentBlock.Number(), "hash", currentBlock.Hash())
-		if err := bc.repair(&currentBlock); err != nil {
+		if err := bc.repair(&currentBlock); err != nil { //zmm: todo 修复并不是读取原始block数据进行修复？
 			return err
 		}
 	}

@@ -73,7 +73,7 @@ func (m *txSortedMap) Get(nonce uint64) *types.Transaction {
 func (m *txSortedMap) Put(tx *types.Transaction) {
 	nonce := tx.Nonce()
 	if m.items[nonce] == nil {
-		heap.Push(m.index, nonce)
+		heap.Push(m.index, nonce) //zmm: 二叉堆插入
 	}
 	m.items[nonce], m.cache = tx, nil
 }
@@ -175,7 +175,7 @@ func (m *txSortedMap) Remove(nonce uint64) bool {
 // Note, all transactions with nonces lower than start will also be returned to
 // prevent getting into and invalid state. This is not something that should ever
 // happen but better to be self correcting than failing!
-func (m *txSortedMap) Ready(start uint64) types.Transactions {
+func (m *txSortedMap) Ready(start uint64) types.Transactions {//zmm: 依次从index中pop出nonce，将连续的放入ready队列
 	// Short circuit if no transactions are available
 	if m.index.Len() == 0 || (*m.index)[0] > start {
 		return nil

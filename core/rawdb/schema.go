@@ -42,7 +42,7 @@ var (
 	fastTrieProgressKey = []byte("TrieSync")
 
 	// Data item prefixes (use single byte to avoid mixing data types, avoid `i`, used for indexes).
-	headerPrefix       = []byte("h") // headerPrefix + num (uint64 big endian) + hash -> header
+	headerPrefix       = []byte("h") // headerPrefix + num (uint64 big endian) + hash -> header						//zmm: db schema
 	headerTDSuffix     = []byte("t") // headerPrefix + num (uint64 big endian) + hash + headerTDSuffix -> td
 	headerHashSuffix   = []byte("n") // headerPrefix + num (uint64 big endian) + headerHashSuffix -> hash
 	headerNumberPrefix = []byte("H") // headerNumberPrefix + hash -> num (uint64 big endian)

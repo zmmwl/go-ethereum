@@ -953,7 +953,7 @@ func (pool *TxPool) promoteExecutables(accounts []common.Address) {
 			queuedNofundsCounter.Inc(1)
 		}
 		// Gather all executable transactions and promote them
-		for _, tx := range list.Ready(pool.pendingState.GetNonce(addr)) {
+		for _, tx := range list.Ready(pool.pendingState.GetNonce(addr)) {//zmm: 依次从index中pop出nonce，将连续的放入ready队列
 			hash := tx.Hash()
 			if pool.promoteTx(addr, hash, tx) { //zmm: 先检查nonce的连续性，然后移动queue的tx到pending队列
 				log.Trace("Promoting queued transaction", "hash", hash)
