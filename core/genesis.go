@@ -141,7 +141,7 @@ func (e *GenesisMismatchError) Error() string {
 // The block that will be used is:
 //
 //                          genesis == nil       genesis != nil
-//                       +------------------------------------------
+//                       +------------------------------------------			//zmm: todo 这里的genesis从哪里来？
 //     db has no genesis |  main-net default  |  genesis
 //     db has genesis    |  from DB           |  genesis (if compatible)
 //
