@@ -718,13 +718,13 @@ running:
 			case <-srv.quit:
 				break running
 			}
-		case c := <-srv.addpeer:
+		case c := <-srv.addpeer: //zmm: srv.addpeer是peer连接通道
 			// At this point the connection is past the protocol handshake.
 			// Its capabilities are known and the remote identity is verified.
 			err := srv.protoHandshakeChecks(peers, inboundCount, c)
 			if err == nil {
 				// The handshakes are done and it passed all checks.
-				p := newPeer(c, srv.Protocols)
+				p := newPeer(c, srv.Protocols) //zmm: 创建peer
 				// If message events are enabled, pass the peerFeed
 				// to the peer
 				if srv.EnableMsgEvents {
@@ -732,7 +732,7 @@ running:
 				}
 				name := truncateName(c.name)
 				srv.log.Debug("Adding p2p peer", "name", name, "addr", c.fd.RemoteAddr(), "peers", len(peers)+1)
-				go srv.runPeer(p)
+				go srv.runPeer(p) //zmm: 运行peer，执行protocol
 				peers[c.node.ID()] = p
 				if p.Inbound() {
 					inboundCount++

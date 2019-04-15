@@ -310,7 +310,7 @@ func (f *Fetcher) loop() {
 				f.forgetBlock(hash)
 				continue
 			}
-			f.insert(op.origin, op.block)
+			f.insert(op.origin, op.block) //zmm: todo insert chain?
 		}
 		// Wait for an outside event to occur
 		select {
@@ -352,7 +352,7 @@ func (f *Fetcher) loop() {
 				f.rescheduleFetch(fetchTimer)
 			}
 
-		case op := <-f.inject:
+		case op := <-f.inject: //zmm: todo chain insert channel?
 			// A direct block insertion was requested, try and fill any pending gaps
 			propBroadcastInMeter.Mark(1)
 			f.enqueue(op.origin, op.block)
@@ -666,7 +666,7 @@ func (f *Fetcher) insert(peer string, block *types.Block) {
 			return
 		}
 		// Run the actual import and log any issues
-		if _, err := f.insertChain(types.Blocks{block}); err != nil {
+		if _, err := f.insertChain(types.Blocks{block}); err != nil {//zmm: insert chain
 			log.Debug("Propagated block import failed", "peer", peer, "number", block.Number(), "hash", hash, "err", err)
 			return
 		}

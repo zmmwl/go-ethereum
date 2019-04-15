@@ -207,7 +207,7 @@ func (p *Peer) run() (remoteRequested bool, err error) {
 
 	// Start all protocol handlers.
 	writeStart <- struct{}{}
-	p.startProtocols(writeStart, writeErr)
+	p.startProtocols(writeStart, writeErr) //zmm: run protocol, 处理接受到的peer msg
 
 	// Wait for an error or disconnect.
 loop:
@@ -358,7 +358,7 @@ func (p *Peer) startProtocols(writeStart <-chan struct{}, writeErr chan<- error)
 		}
 		p.log.Trace(fmt.Sprintf("Starting protocol %s/%d", proto.Name, proto.Version))
 		go func() {
-			err := proto.Run(p, rw)
+			err := proto.Run(p, rw) //zmm: 参加protocolmanage方法
 			if err == nil {
 				p.log.Trace(fmt.Sprintf("Protocol %s/%d returned", proto.Name, proto.Version))
 				err = errProtocolReturned

@@ -137,13 +137,13 @@ func (t *Trie) TryGet(key []byte) ([]byte, error) {
 	return value, err
 }
 
-func (t *Trie) tryGet(origNode node, key []byte, pos int) (value []byte, newnode node, didResolve bool, err error) {
+func (t *Trie) tryGet(origNode node, key []byte, pos int) (value []byte, newnode node, didResolve bool, err error) { //zmm: trie get important method!!!
 	switch n := (origNode).(type) {
 	case nil:
 		return nil, nil, false, nil
 	case valueNode:
 		return n, n, false, nil
-	case *shortNode:
+	case *shortNode: //zmm: 对应MPT中的extension node
 		if len(key)-pos < len(n.Key) || !bytes.Equal(n.Key, key[pos:pos+len(n.Key)]) {
 			// key not found in trie
 			return nil, n, false, nil
@@ -155,7 +155,7 @@ func (t *Trie) tryGet(origNode node, key []byte, pos int) (value []byte, newnode
 			n.flags.gen = t.cachegen
 		}
 		return value, n, didResolve, err
-	case *fullNode:
+	case *fullNode:   //zmm: 对应MPT中的branch node 按key中对应的pos的数字来对应下一级节点
 		value, newnode, didResolve, err = t.tryGet(n.Children[key[pos]], key, pos+1)
 		if err == nil && didResolve {
 			n = n.copy()
@@ -163,7 +163,7 @@ func (t *Trie) tryGet(origNode node, key []byte, pos int) (value []byte, newnode
 			n.Children[key[pos]] = newnode
 		}
 		return value, n, didResolve, err
-	case hashNode:
+	case hashNode: //zmm: 还未加载到内存中的node
 		child, err := t.resolveHash(n, key[:pos])
 		if err != nil {
 			return nil, n, true, err
@@ -213,7 +213,7 @@ func (t *Trie) TryUpdate(key, value []byte) error {
 	return nil
 }
 
-func (t *Trie) insert(n node, prefix, key []byte, value node) (bool, node, error) {
+func (t *Trie) insert(n node, prefix, key []byte, value node) (bool, node, error) { //zmm: trie insert important method!!!
 	if len(key) == 0 {
 		if v, ok := n.(valueNode); ok {
 			return !bytes.Equal(v, value.(valueNode)), value, nil
