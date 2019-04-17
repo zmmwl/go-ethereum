@@ -555,7 +555,7 @@ func (c *Clique) Prepare(chain consensus.ChainReader, header *types.Header) erro
 	}
 	header.Extra = header.Extra[:extraVanity]
 
-	if number%c.config.Epoch == 0 {
+	if number%c.config.Epoch == 0 {//zmm: 如果当前区块是checkpoint, 把snapshot中的singer信息存储到header，避免每次都全量计算
 		for _, signer := range snap.signers() {
 			header.Extra = append(header.Extra, signer[:]...)
 		}
@@ -619,7 +619,7 @@ func (c *Clique) Seal(chain consensus.ChainReader, block *types.Block, results c
 	c.lock.RUnlock()
 
 	// Bail out if we're unauthorized to sign a block
-	snap, err := c.snapshot(chain, number-1, header.ParentHash, nil)
+	snap, err := c.snapshot(chain, number-1, header.ParentHash, nil) //zmm: 累计从上一个checkpoint到当前的block，统计有效的signer
 	if err != nil {
 		return err
 	}

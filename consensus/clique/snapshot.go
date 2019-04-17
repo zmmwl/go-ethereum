@@ -237,7 +237,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		// Tally up the new vote from the signer
 		var authorize bool
 		switch {
-		case bytes.Equal(header.Nonce[:], nonceAuthVote):
+		case bytes.Equal(header.Nonce[:], nonceAuthVote): //zmm: todo 每次专门为vote产生一个新区块？
 			authorize = true
 		case bytes.Equal(header.Nonce[:], nonceDropVote):
 			authorize = false
