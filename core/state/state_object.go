@@ -150,7 +150,7 @@ func (c *stateObject) touch() {
 func (c *stateObject) getTrie(db Database) Trie {
 	if c.trie == nil {
 		var err error
-		c.trie, err = db.OpenStorageTrie(c.addrHash, c.data.Root)
+		c.trie, err = db.OpenStorageTrie(c.addrHash, c.data.Root) //zmm: 与OpenTrie不同的是多了addr参数，合约变量的记录需要以addr作为key合成元素
 		if err != nil {
 			c.trie, _ = db.OpenStorageTrie(c.addrHash, common.Hash{})
 			c.setError(fmt.Errorf("can't create storage trie: %v", err))

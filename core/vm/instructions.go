@@ -633,8 +633,8 @@ func opSload(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory
 	return nil, nil
 }
 
-func opSstore(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) {
-	loc := common.BigToHash(stack.pop())
+func opSstore(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) { //zmm: 将变量持久化到状态数据库
+	loc := common.BigToHash(stack.pop())  //zmm: todo loc到底是什么，将来要作为key进行leveldb存储，是否包含addr信息 ?
 	val := stack.pop()
 	interpreter.evm.StateDB.SetState(contract.Address(), loc, common.BigToHash(val))
 
