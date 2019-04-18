@@ -211,7 +211,7 @@ func (f *Fetcher) Enqueue(peer string, block *types.Block) error {
 		block:  block,
 	}
 	select {
-	case f.inject <- op:
+	case f.inject <- op: //zmm: 新区块block同步其他peer - 9
 		return nil
 	case <-f.quit:
 		return errTerminated
@@ -310,7 +310,7 @@ func (f *Fetcher) loop() {
 				f.forgetBlock(hash)
 				continue
 			}
-			f.insert(op.origin, op.block) //zmm: todo insert chain?
+			f.insert(op.origin, op.block) //zmm: 新区块block同步其他peer - 13
 		}
 		// Wait for an outside event to occur
 		select {
@@ -318,7 +318,7 @@ func (f *Fetcher) loop() {
 			// Fetcher terminating, abort all operations
 			return
 
-		case notification := <-f.notify:
+		case notification := <-f.notify:   //zmm: 来自p2p网络的其他peer新出区块的消息
 			// A block was announced, make sure the peer isn't DOSing us
 			propAnnounceInMeter.Mark(1)
 
@@ -337,7 +337,7 @@ func (f *Fetcher) loop() {
 				}
 			}
 			// All is well, schedule the announce if block's not yet downloading
-			if _, ok := f.fetching[notification.hash]; ok {
+			if _, ok := f.fetching[notification.hash]; ok { //zmm:
 				break
 			}
 			if _, ok := f.completing[notification.hash]; ok {
@@ -352,7 +352,7 @@ func (f *Fetcher) loop() {
 				f.rescheduleFetch(fetchTimer)
 			}
 
-		case op := <-f.inject: //zmm: todo chain insert channel?
+		case op := <-f.inject: //zmm: 新区块block同步其他peer - 10
 			// A direct block insertion was requested, try and fill any pending gaps
 			propBroadcastInMeter.Mark(1)
 			f.enqueue(op.origin, op.block)
@@ -598,7 +598,7 @@ func (f *Fetcher) rescheduleComplete(complete *time.Timer) {
 
 // enqueue schedules a new future import operation, if the block to be imported
 // has not yet been seen.
-func (f *Fetcher) enqueue(peer string, block *types.Block) {
+func (f *Fetcher) enqueue(peer string, block *types.Block) { //zmm: 新区块block同步其他peer - 11
 	hash := block.Hash()
 
 	// Ensure the peer isn't DOSing us
@@ -624,7 +624,7 @@ func (f *Fetcher) enqueue(peer string, block *types.Block) {
 		}
 		f.queues[peer] = count
 		f.queued[hash] = op
-		f.queue.Push(op, -int64(block.NumberU64()))
+		f.queue.Push(op, -int64(block.NumberU64())) //zmm: 新区块block同步其他peer - 12
 		if f.queueChangeHook != nil {
 			f.queueChangeHook(op.block.Hash(), true)
 		}
@@ -650,7 +650,7 @@ func (f *Fetcher) insert(peer string, block *types.Block) {
 			return
 		}
 		// Quickly validate the header and propagate the block if it passes
-		switch err := f.verifyHeader(block.Header()); err {
+		switch err := f.verifyHeader(block.Header()); err { //zmm: 新区块block同步其他peer - 14
 		case nil:
 			// All ok, quickly propagate to our peers
 			propBroadcastOutTimer.UpdateSince(block.ReceivedAt)
@@ -666,7 +666,7 @@ func (f *Fetcher) insert(peer string, block *types.Block) {
 			return
 		}
 		// Run the actual import and log any issues
-		if _, err := f.insertChain(types.Blocks{block}); err != nil {//zmm: insert chain
+		if _, err := f.insertChain(types.Blocks{block}); err != nil {//zmm: 新区块block同步其他peer - 15
 			log.Debug("Propagated block import failed", "peer", peer, "number", block.Number(), "hash", hash, "err", err)
 			return
 		}

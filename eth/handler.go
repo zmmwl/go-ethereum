@@ -213,7 +213,7 @@ func (pm *ProtocolManager) Start(maxPeers int) {
 
 	// broadcast mined blocks
 	pm.minedBlockSub = pm.eventMux.Subscribe(core.NewMinedBlockEvent{}) //zmm: 订阅成功写块事件
-	go pm.minedBroadcastLoop() //zmm: todo
+	go pm.minedBroadcastLoop() //zmm: 新区块block同步其他peer - 1
 
 	// start sync handlers
 	go pm.syncer()		//zmm: todo
@@ -614,7 +614,7 @@ func (pm *ProtocolManager) handleMsg(p *peer) error { //zmm: 处理peer消息的
 			log.Debug("Failed to deliver receipts", "err", err)
 		}
 
-	case msg.Code == NewBlockHashesMsg:
+	case msg.Code == NewBlockHashesMsg: //zmm: 接受来自p2p网络的新区块创建消息
 		var announces newBlockHashesData
 		if err := msg.Decode(&announces); err != nil {
 			return errResp(ErrDecode, "%v: %v", msg, err)
@@ -631,10 +631,10 @@ func (pm *ProtocolManager) handleMsg(p *peer) error { //zmm: 处理peer消息的
 			}
 		}
 		for _, block := range unknown {
-			pm.fetcher.Notify(p.id, block.Hash, block.Number, time.Now(), p.RequestOneHeader, p.RequestBodies)
+			pm.fetcher.Notify(p.id, block.Hash, block.Number, time.Now(), p.RequestOneHeader, p.RequestBodies) //zmm: todo
 		}
 
-	case msg.Code == NewBlockMsg:
+	case msg.Code == NewBlockMsg:    //zmm: 新区块block同步其他peer - 7
 		// Retrieve and decode the propagated block
 		var request newBlockData
 		if err := msg.Decode(&request); err != nil {
@@ -645,7 +645,7 @@ func (pm *ProtocolManager) handleMsg(p *peer) error { //zmm: 处理peer消息的
 
 		// Mark the peer as owning the block and schedule it for import
 		p.MarkBlock(request.Block.Hash())
-		pm.fetcher.Enqueue(p.id, request.Block) //zmm: 接收到新块
+		pm.fetcher.Enqueue(p.id, request.Block) //zmm: 新区块block同步其他peer - 8
 
 		// Assuming the block is importable by the peer, but possibly not yet done so,
 		// calculate the head hash and TD that the peer truly must have.
@@ -695,7 +695,7 @@ func (pm *ProtocolManager) handleMsg(p *peer) error { //zmm: 处理peer消息的
 // will only announce it's availability (depending what's requested).
 func (pm *ProtocolManager) BroadcastBlock(block *types.Block, propagate bool) {
 	hash := block.Hash()
-	peers := pm.peers.PeersWithoutBlock(hash)
+	peers := pm.peers.PeersWithoutBlock(hash) //zmm: 如何维护peers包含的block信息
 
 	// If propagation is requested, send to a subset of the peer
 	if propagate {
@@ -717,7 +717,7 @@ func (pm *ProtocolManager) BroadcastBlock(block *types.Block, propagate bool) {
 		}
 		transfer := peers[:transferLen]
 		for _, peer := range transfer {
-			peer.AsyncSendNewBlock(block, td)
+			peer.AsyncSendNewBlock(block, td) //zmm: 新区块block同步其他peer - 3
 		}
 		log.Trace("Propagated block", "hash", hash, "recipients", len(transfer), "duration", common.PrettyDuration(time.Since(block.ReceivedAt)))
 		return
@@ -725,7 +725,7 @@ func (pm *ProtocolManager) BroadcastBlock(block *types.Block, propagate bool) {
 	// Otherwise if the block is indeed in out own chain, announce it
 	if pm.blockchain.HasBlock(hash, block.NumberU64()) {
 		for _, peer := range peers {
-			peer.AsyncSendNewBlockHash(block)
+			peer.AsyncSendNewBlockHash(block) //zmm: 向peer同步新block Hash, only hash
 		}
 		log.Trace("Announced block", "hash", hash, "recipients", len(peers), "duration", common.PrettyDuration(time.Since(block.ReceivedAt)))
 	}
@@ -755,7 +755,7 @@ func (pm *ProtocolManager) minedBroadcastLoop() {
 	// automatically stops if unsubscribe
 	for obj := range pm.minedBlockSub.Chan() {
 		if ev, ok := obj.Data.(core.NewMinedBlockEvent); ok {
-			pm.BroadcastBlock(ev.Block, true)  // First propagate block to peers
+			pm.BroadcastBlock(ev.Block, true)  // First propagate block to peers //zmm: 新区块block同步其他peer - 2
 			pm.BroadcastBlock(ev.Block, false) // Only then announce to the rest
 		}
 	}

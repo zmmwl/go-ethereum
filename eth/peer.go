@@ -120,7 +120,7 @@ func (p *peer) broadcast() {
 			}
 			p.Log().Trace("Broadcast transactions", "count", len(txs))
 
-		case prop := <-p.queuedProps:
+		case prop := <-p.queuedProps:   //zmm: 新区块block同步其他peer - 5
 			if err := p.SendNewBlock(prop.block, prop.td); err != nil {
 				return
 			}
@@ -226,7 +226,7 @@ func (p *peer) SendNewBlockHashes(hashes []common.Hash, numbers []uint64) error 
 		request[i].Hash = hashes[i]
 		request[i].Number = numbers[i]
 	}
-	return p2p.Send(p.rw, NewBlockHashesMsg, request)
+	return p2p.Send(p.rw, NewBlockHashesMsg, request) //zmm: 使用p2p网络向peer发送新区块创建消息
 }
 
 // AsyncSendNewBlockHash queues the availability of a block for propagation to a
@@ -244,14 +244,14 @@ func (p *peer) AsyncSendNewBlockHash(block *types.Block) {
 // SendNewBlock propagates an entire block to a remote peer.
 func (p *peer) SendNewBlock(block *types.Block, td *big.Int) error {
 	p.knownBlocks.Add(block.Hash())
-	return p2p.Send(p.rw, NewBlockMsg, []interface{}{block, td})
+	return p2p.Send(p.rw, NewBlockMsg, []interface{}{block, td}) //zmm: 新区块block同步其他peer - 6
 }
 
 // AsyncSendNewBlock queues an entire block for propagation to a remote peer. If
 // the peer's broadcast queue is full, the event is silently dropped.
 func (p *peer) AsyncSendNewBlock(block *types.Block, td *big.Int) {
 	select {
-	case p.queuedProps <- &propEvent{block: block, td: td}:
+	case p.queuedProps <- &propEvent{block: block, td: td}: //zmm: 新区块block同步其他peer - 4
 		p.knownBlocks.Add(block.Hash())
 	default:
 		p.Log().Debug("Dropping block propagation", "number", block.NumberU64(), "hash", block.Hash())
